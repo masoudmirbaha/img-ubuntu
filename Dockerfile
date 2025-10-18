@@ -1,26 +1,19 @@
-FROM ubuntu:latest
+# از ایمیج رسمی Tomcat استفاده می‌کنیم
+FROM tomcat:latest
 
-RUN apt update && \
-    apt install net-tools -y && \
-    apt install openssh-server -y && \
-    apt install openjdk-11-jdk wget && \
-    rm -rf /var/lib/apt/lists/* && \
-    mkdir -p /var/run/sshd
+# کاری به نصب JDK و Tomcat نداریم چون توی Image هست
+# فقط فایل‌های خودمون یا تنظیمات اضافه رو میاریم
+WORKDIR /usr/local/tomcat
 
-EXPOSE 80 22 443
+# اگه بخوای وب‌اپلیکیشن WAR رو بریزی داخل Tomcat
+# فرض کنیم فایل app.war کنار Dockerfile هست
+COPY app.war webapps/
 
-WORKDIR /usr/local/
-COPY sshd_config /etc/ssh/sshd_config
+# اگه بخوای فایل sshd_config اضافه کنی (اختیاری)
+# COPY sshd_config /etc/ssh/sshd_config
 
-RUN wget https://downloads.apache.org/tomcat/tomcat-9/v9.0.85/bin/apache-tomcat-9.0.85.tar.gz && \
-    tar xvf apache-tomcat-9.0.85.tar.gz && \
-    mv apache-tomcat-9.0.85.tar.gz && \
-    rm -rf apache-tomcat-9.0.85.tar.gz
+# پورت Tomcat
+EXPOSE 8080
 
-ENV CATALINA_HOME=/usr/local/tomcat
-ENV PATH="$CATALINA_HOME/bin:$PATH"
-
-CMD service ssh restart && catalina.sh run
-    
-
-
+# دستور پیش‌فرض Tomcat رو نگه می‌داریم
+CMD ["catalina.sh", "run"]
